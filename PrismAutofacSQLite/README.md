@@ -9,11 +9,3 @@
 - ReactiveProperty (nuget)
 
 BuildオプションでDataGridとDataGridViewの動作比較を行っています。
-
-```@mermaid
-graph LR
-A --> B
-B --> C
-C --> A
-```
-a
