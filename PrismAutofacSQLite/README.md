@@ -1,5 +1,19 @@
-# PrismAutofacSQLite
+# SQLlama
 
-SQLアンチパターン http://penguinlab.jp/wiki/SQL_%E3%82%A2%E3%83%B3%E3%83%81%E3%83%91%E3%82%BF%E3%83%BC%E3%83%B3
+- System.Data.Linq
+  - System.Data.Linq.Mapping
+- System.ValueTuple
+- System.Windoes.Forms
+- WindowsFormsIntegration
+- System.Data.SQLite (nuget)
+- ReactiveProperty (nuget)
 
-SQLアンチパターン勉強会 https://qiita.com/iwata@github/items/9a47ddababd8e0a82662
+BuildオプションでDataGridとDataGridViewの動作比較を行っています。
+
+```@mermaid
+graph LR
+A --> B
+B --> C
+C --> A
+```
+a
