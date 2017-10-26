@@ -16,30 +16,8 @@
     
     <Grid>
         <!--<ContentControl prism:RegionManager.RegionName="ContentRegion" />-->
-        <!--<DataGrid 
-            ItemsSource="{Binding griddata.value}" 
-            AutoGenerateColumns="True"/>-->
         <WindowsFormsHost  >
             <wf:DataGridView x:Name="dgvList" ></wf:DataGridView>
         </WindowsFormsHost>
-        <!--<DataGrid  ItemsSource="{Binding MyProperty}" x:Name="dataGrid" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"  HeadersVisibility="Column" CanUserReorderColumns="False" CanUserSortColumns="False" CanUserDeleteRows="False"
-                       VirtualizingStackPanel.IsVirtualizing="True"
-                  VirtualizingStackPanel.VirtualizationMode="Recycling"
-                       ScrollViewer.IsDeferredScrollingEnabled="True"
-                       EnableColumnVirtualization="True"
-                   
-                   />-->
-        <!--<ListView Name="dat" ItemsSource ="{Binding MyProperty}">-->
-        <!--<ListView.View>
-                <GridView>
-                <GridViewColumn DisplayMemberBinding="{Binding Path=1}" Header="1" Width="100" />
-                <GridViewColumn DisplayMemberBinding="{Binding Path=2}" Header="2" Width="100" />
-                <GridViewColumn DisplayMemberBinding="{Binding Path=3}" Header="3" Width="100" />
-            </GridView>
-                </ListView.View>-->
-        <!--<GridView>
-                <GridViewColumn DisplayMemberBinding="{Binding FirstName}" Header="First Name" />
-            </GridView>-->
-        <!--</ListView>-->
     </Grid>
 </Window>

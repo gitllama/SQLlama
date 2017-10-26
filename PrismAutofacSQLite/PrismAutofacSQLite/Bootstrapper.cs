@@ -9,7 +9,11 @@ namespace PrismAutofacSQLite
     {
         protected override DependencyObject CreateShell()
         {
+#if DATAGRID
+            return Container.Resolve<MainDataGridWindow>();
+#else
             return Container.Resolve<MainWindow>();
+#endif
         }
 
         protected override void InitializeShell()
