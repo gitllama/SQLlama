@@ -1,1 +1,2 @@
-﻿Height : 1
+﻿GridType : "DataGridView_"
+SqlFileName : "SQLTEST.db"

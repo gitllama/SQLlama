@@ -29,15 +29,28 @@ namespace PrismAutofacSQLite.Models
 
     public class Model : BindableBase
     {
-        private int _height = 1;
+        private string _gridType = "DataGridView";
         [ReadOnly(true)]
-        public int Height
+        public string GridType
         {
-            get { return _height; }
-            set { SetProperty(ref _height, value); }
+            get { return _gridType; }
+            set { SetProperty(ref _gridType, value); }
+        }
+
+        private string _sqlFileName = "SQLTEST.db";
+        [ReadOnly(true)]
+        public string SqlFileName
+        {
+            get { return _sqlFileName; }
+            set { SetProperty(ref _sqlFileName, value); }
         }
 
 
+        //DataGridView
+        // IList : 編集〇追加削除× 
+        // IListSource(DataTable、DataSet) : 追加削除〇
+        // IBindingList : 編集削除〇追加△(BindingList.AllowNew=true)
+        // IBindingListView : 編集追加削除〇
         private object _table;
         public object table
         {
@@ -47,10 +60,141 @@ namespace PrismAutofacSQLite.Models
 
 
         public string A { get; set; }
-        public string query { get; set; } = "SELECT * FROM 'Lot' INNER JOIN 'Status'";
+        public string query { get; set; } = "SELECT * FROM 'Lot' INNER JOIN 'State'";
+
+        public void Init()
+        {
+            var connectionString = new SQLiteConnectionStringBuilder
+            {
+                DataSource = $"{SqlFileName}"
+            };
+            try
+            {
+                using (var con = new SQLiteConnection(connectionString.ToString()))
+                {
+                    con.Open();
+                    var cmd = con.CreateCommand();
+                    cmd.CommandText = "SELECT * FROM 'Lot' LEFT OUTER JOIN 'State'";
+                    var reader = cmd.ExecuteReader();
+                    
+                    //table = reader.GetSchemaTable().DefaultView;
+
+                    var datatable = new System.Data.DataTable();
+                    datatable.Load(reader);
+                    table = datatable.DefaultView;
+
+                    con.Close();
+                }
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show(e.Message);
+            }
+        }
+
+        public void Init2()
+        {
+            var connectionString = new SQLiteConnectionStringBuilder
+            {
+                DataSource = $"{SqlFileName}"
+            };
+            var con = new SQLiteConnection(connectionString.ToString());
+            try
+            {
+                var context = new DataContext(con);
+                var lot = context.GetTable<Lots>();
+                var state = context.GetTable<State>();
+                var statemaster = context.GetTable<StateMaster>();
+                var tags = context.GetTable<Tags>();
+
+                //Linqでnullを処理しようとするとint?とかでないと例外吐く
+
+                //LEFT OUTER JOINで結果の表示
+                var buf = 
+                    from p in lot
+                    join s in state
+                    on p.id equals s.id into pGroup
+                    from r in pGroup.OrderByDescending(x => x.date).DefaultIfEmpty()
+                    select new
+                    {
+                        id = (int?)p.id,
+                        lot = p.Lot,
+                        created_date = pGroup.Min(x => (DateTime?)x.date),
+                        update = pGroup.Max(x => (DateTime?)x.date),
+                        state = (int?)r.state
+                    };
+
+                //LEFT OUTER JOINでtagの表示
+
+                table = tags.GroupBy(x => x.id).Select(x => x.ToJoinedString(","));
+                return;
 
 
-        public void Set()
+                //buf =
+                //    from p in buf
+                //    join s in tags
+                //    on p.id equals s.id into pGroup
+                //    //from r in pGroup.DefaultIfEmpty()
+                //    from r in pGroup.OrderByDescending(x => x.id).DefaultIfEmpty()
+                //    select new
+                //    {
+                //        id = p.id,
+                //        lot = p.lot,
+                //        created_date = p.created_date,
+                //        update = p.update,
+                //        state = p.state,
+                //        tags = r.tag
+                //    };
+
+                //Masterから値の取り込み
+                if (false)
+                {
+                    //INNER JOIN
+                    table =
+                        from p in buf
+                        join s in statemaster
+                        on p.state equals s.id
+                        select new
+                        {
+                            id = p.id,
+                            lot = p.lot,
+                            created_date = p.created_date,
+                            update = p.update,
+                            state = s.value,
+                            //tag = p.tag
+                        };
+                }
+                else
+                {
+                    //LEFT OUTER JOIN
+                    table =
+                        from p in buf
+                        join s in statemaster
+                        on p.state equals s.id into outerjoin
+                        from result in outerjoin.DefaultIfEmpty()
+                        select new
+                        {
+                            id = p.id,
+                            lot = p.lot,
+                            created_date = p.created_date,
+                            update = p.update,
+                            state = result.value,
+                            //tag = p.tag
+                        };
+                }
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show(e.Message);
+            }
+        }
+
+        public object ReadDef()
+        {
+            return null;
+        }
+
+        public void Set2()
         {
             //LINQ で使えるように Entity クラスを作ります。
 
@@ -81,90 +225,6 @@ namespace PrismAutofacSQLite.Models
         }
 
 
-        /****/
-        public object Set2()
-        {
-            var connectionString = new SQLiteConnectionStringBuilder
-            {
-                DataSource = "SQLTEST.db",
-            };
-
-            var con = new SQLiteConnection(connectionString.ToString());
-
-            try
-            {
-                var context = new DataContext(con);
-                var lot = context.GetTable<Lots>();
-                var status = context.GetTable<Status>();
-                var statusmaster = context.GetTable<StatusMaster>();
-
-                //tumblrs.InsertOnSubmit(new TTestData { ID = 0, Title = "test" });
-                //context.SubmitChanges();
-
-                //foreach (var tumblr in tumblrs)
-                //    {
-                //        Console.WriteLine(tumblr.Id);
-                //    }
-
-
-                //var data = from p in tumblrs select p;
-
-                var kekka =
-                    from x in status
-                    group x by new { x.Id } into g
-                    orderby g.Key.Id
-                    select new
-                    {
-                        ID = g.Key.Id,
-                        A = g.Max(p => p.date),
-                    };
-
-
-
-
-                var date =
-                    from p in lot
-                    join j in status on p.Id equals j.Id
-                    select new
-                    {
-                        Id = p.Id,
-                        Lot = p.Lot,
-                        Wf = p.Wf,
-                        status = j.status,
-                        note = j.note
-                    };
-
-                var data1 =
-                    from p in lot
-                    join j in status on p.Id equals j.Id
-                    select new
-                    {
-                        Id = p.Id,
-                        Lot = p.Lot,
-                        Wf = p.Wf,
-                        status = j.status,
-                        note = j.note
-                    };
-                var data2 =
-                    from p in data1
-                    join j in statusmaster on p.status equals j.Id
-                    select new
-                    {
-                        Id = p.Id,
-                        Lot = p.Lot,
-                        Wf = p.Wf,
-                        status = j.value,
-                        note = p.note
-                    };
-                table = kekka;
-                return kekka;
-            }
-            catch (Exception e)
-            {
-                //MessageBox.Show(e.Message);
-                return null;
-            }
-        }
 
     }
 
@@ -172,48 +232,87 @@ namespace PrismAutofacSQLite.Models
     [Table(Name = "Lot")]
     public class Lots
     {
-        [Column(Name = "Id")]
-        public int Id { get; set; }
+        [Column(Name = "id")]
+        public int id { get; set; }
 
-        [Column(Name = "Lot")]
+        [Column(Name = "lot")]
         public String Lot { get; set; }
 
-        [Column(Name = "Wf")]
+        [Column(Name = "wf")]
         public String Wf { get; set; }
 
-        [Column(Name = "X")]
+        [Column(Name = "x")]
         public int X { get; set; }
 
-        [Column(Name = "Y")]
+        [Column(Name = "y")]
         public int Y { get; set; }
+
+        [Column(Name = "chip")]
+        public int chip { get; set; }
     }
 
 
-    [Table(Name = "Status")]
-    public class Status
+    [Table(Name = "State")]
+    public class State
     {
         [Column(Name = "id")]
-        public int Id { get; set; }
+        public int id { get; set; }
 
         [Column(Name = "date")]
         public DateTime date { get; set; }
 
-        [Column(Name = "status")]
-        public int status { get; set; }
+        [Column(Name = "stateid")]
+        public int state { get; set; }
 
         [Column(Name = "note")]
         public string note { get; set; }
     }
 
 
-    [Table(Name = "StatusMaster")]
-    public class StatusMaster
+    [Table(Name = "StateMaster")]
+    public class StateMaster
     {
-        [Column(Name = "StatusID")]
-        public int Id { get; set; }
+        [Column(Name = "stateid")]
+        public int id { get; set; }
 
-        [Column(Name = "Value")]
+        [Column(Name = "value")]
         public string value { get; set; }
+    }
+
+    [Table(Name = "Tags")]
+    public class Tags
+    {
+        [Column(Name = "id")]
+        public int id { get; set; }
+
+        [Column(Name = "tag")]
+        public string tag { get; set; }
+    }
+
+    public static class Ext
+    {
+        public static string ToJoinedString<T>(this IEnumerable<T> source)
+        {
+            return source.ToJoinedString("");
+        }
+
+        public static string ToJoinedString<T>(this IEnumerable<T> source, string separator)
+        {
+            var index = 0;
+            return source.Aggregate(new StringBuilder(),
+                    (sb, o) => (index++ == 0) ? sb.Append(o) : sb.AppendFormat("{0}{1}", separator, o))
+                .ToString();
+        }
     }
 }
 
+                    //tumblrs.InsertOnSubmit(new TTestData { ID = 0, Title = "test" });
+                    //context.SubmitChanges();
+
+//foreach (var tumblr in tumblrs)
+//    {
+//        Console.WriteLine(tumblr.Id);
+//    }
+
+
+//var data = from p in tumblrs select p;

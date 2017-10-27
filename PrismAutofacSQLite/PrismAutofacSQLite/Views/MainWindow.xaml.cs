@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using Prism.Events;
+using System.Data;
 
 using System.Windows;
 
@@ -9,27 +10,19 @@ namespace PrismAutofacSQLite.Views
     /// </summary>
     public partial class MainWindow : Window
     {
+        public class Messenger : EventAggregator
+        {
+            private static Messenger _instance;
+            public static Messenger Instance { get => _instance ?? (_instance = new Messenger()); }
+        }
+
         public MainWindow()
         {
             InitializeComponent();
-
-            int col = 200;
-            DataTable dt = new DataTable();
-            for (int i = 0; i < col; i++)
+            Messenger.Instance.GetEvent<PubSubEvent<object>>().Subscribe(m =>
             {
-                dt.Columns.Add(i.ToString());
-            }
-
-            for (int i = 0; i < 24 * 100; i++)
-            {
-                dt.Rows.Add(dt.NewRow());
-                for (int j = 0; j < col; j++)
-                {
-                    dt.Rows[i][j] = i;
-                }
-            }
-
-            dgvList.DataSource = dt;
+                dgvList.DataSource = m;
+            });
         }
     }
 }

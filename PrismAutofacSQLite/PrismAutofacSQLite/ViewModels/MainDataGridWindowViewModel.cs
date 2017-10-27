@@ -15,13 +15,6 @@ namespace PrismAutofacSQLite.ViewModels
             set { SetProperty(ref _title, value); }
         }
 
-        private object _data;
-        public object data
-        {
-            get { return _data; }
-            set { SetProperty(ref _data, value); }
-        }
-
         public ReactiveCommand<object> LoadedCommand { get; private set; }
         public ReactiveProperty<object> table { get; private set; }
 
@@ -33,10 +26,7 @@ namespace PrismAutofacSQLite.ViewModels
             this.table = model.ObserveProperty(x => (object)(x.table)).ToReactiveProperty();
 
             LoadedCommand = new ReactiveCommand();
-            LoadedCommand.Subscribe(_ =>
-            {
-                data = model.Set2();
-            });
+            LoadedCommand.Subscribe(_ => model.Init());
         }
     }
 }

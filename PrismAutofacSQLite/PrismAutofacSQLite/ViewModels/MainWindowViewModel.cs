@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Prism.Events;
 using Prism.Mvvm;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -16,19 +17,21 @@ namespace PrismAutofacSQLite.ViewModels
         }
 
         public ReactiveCommand<object> LoadedCommand { get; private set; }
-        public ReactiveProperty<object> griddata { get; private set; }
+        //public ReactiveProperty<object> table { get; private set; }
 
         public MainWindowViewModel()
         {
             var model = App.modelcontainer.Resolve<Models.Model>();
 
-            //this.griddata = model.ObserveProperty(x => (object)(x.Goods)).ToReactiveProperty();
+            //this.table = model.ObserveProperty(x => (object)(x.table)).ToReactiveProperty();
+            model.ObserveProperty(x => x.table).Subscribe(x =>
+            {
+                Views.MainWindow.Messenger.Instance.GetEvent<PubSubEvent<object>>().Publish(x);
+            });
 
             LoadedCommand = new ReactiveCommand();
-            LoadedCommand.Subscribe(_ =>
-            {
-                model.Set();
-            });
+            LoadedCommand.Subscribe(_ => model.Init() );
         }
     }
 }
+
