@@ -1,2 +1,31 @@
 ﻿GridType : "DataGridView_"
 SqlFileName : "SQLTEST.db"
+InitQuery : |
+  SELECT 
+   Lot.id, 
+   Lot.lot, 
+   buf.update_date, 
+   buf.created_date,
+   buf.id2
+  FROM Lot
+  LEFT OUTER JOIN 
+  (
+    Select id, max(date) as update_date, min(date) as created_date , stateid as id2 from State group by id
+  ) AS buf 
+  ON Lot.id = buf.id;
+# そのままだとNull制約でひっかかるのでどこかのタイミングで外してやらないといけない
+
+#SELECT *
+#FROM table
+#GROUP BY author_id
+#HAVING created = MAX(created);
+
+#SELECT T.*
+#FROM (
+#SELECT author_id, MAX(created) AS MAX_TIME
+#FROM `table`
+#GROUP BY author_id
+#) TM
+#LEFT JOIN `table` T
+#ON T.author_id = TM.author_id
+#AND T.created = TM.MAX_TIME

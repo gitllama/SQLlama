@@ -60,7 +60,7 @@ namespace PrismAutofacSQLite.Models
 
 
         public string A { get; set; }
-        public string query { get; set; } = "SELECT * FROM 'Lot' INNER JOIN 'State'";
+        public string InitQuery { get; set; } = "SELECT * FROM 'Lot'";
 
         public void Init()
         {
@@ -74,7 +74,7 @@ namespace PrismAutofacSQLite.Models
                 {
                     con.Open();
                     var cmd = con.CreateCommand();
-                    cmd.CommandText = "SELECT * FROM 'Lot' LEFT OUTER JOIN 'State'";
+                    cmd.CommandText = InitQuery;
                     var reader = cmd.ExecuteReader();
                     
                     //table = reader.GetSchemaTable().DefaultView;
@@ -83,7 +83,7 @@ namespace PrismAutofacSQLite.Models
                     datatable.Load(reader);
                     table = datatable.DefaultView;
 
-                    con.Close();
+                    con.Close(); 
                 }
             }
             catch (Exception e)
@@ -205,7 +205,7 @@ namespace PrismAutofacSQLite.Models
                 {
                     cn.Open();
                     SQLiteCommand cmd = cn.CreateCommand();
-                    cmd.CommandText = query;
+                    cmd.CommandText = "";
                     using (SQLiteDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
