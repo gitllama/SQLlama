@@ -17,7 +17,7 @@
     <Grid>
         <!--<ContentControl prism:RegionManager.RegionName="ContentRegion" />-->
         <WindowsFormsHost  >
-            <wf:DataGridView x:Name="dgvList" ></wf:DataGridView>
+            <wf:DataGridView x:Name="dgvList"/>
         </WindowsFormsHost>
     </Grid>
 </Window>

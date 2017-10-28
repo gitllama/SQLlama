@@ -1,18 +1,16 @@
-﻿GridType : "DataGridView_"
+﻿GridType : "DataGridView"
 SqlFileName : "SQLTEST.db"
-InitQuery : |
-  SELECT 
-   Lot.id, 
-   Lot.lot, 
-   buf.update_date, 
-   buf.created_date,
-   buf.id2
-  FROM Lot
-  LEFT OUTER JOIN 
-  (
-    Select id, max(date) as update_date, min(date) as created_date , stateid as id2 from State group by id
-  ) AS buf 
-  ON Lot.id = buf.id;
+InitQuery : SELECT * FROM Lot;
+#   Lot.id, 
+#   Lot.lot, 
+#   buf.update_date, 
+#   buf.created_date,
+#   buf.id2
+# LEFT OUTER JOIN 
+# (
+#   Select id, max(date) as update_date, min(date) as created_date , stateid as id2 from State group by id
+# ) AS buf 
+#  ON Lot.id = buf.id;
 # そのままだとNull制約でひっかかるのでどこかのタイミングで外してやらないといけない
 
 #SELECT *
