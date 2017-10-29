@@ -29,22 +29,12 @@ namespace PrismAutofacSQLite.Models
 
     public class Model : BindableBase
     {
-        private string _gridType = "DataGridView";
         [ReadOnly(true)]
-        public string GridType
-        {
-            get { return _gridType; }
-            set { SetProperty(ref _gridType, value); }
-        }
-
-        private string _sqlFileName = "SQLTEST.db";
+        public string GridType { get; set; } = "DataGridView";
         [ReadOnly(true)]
-        public string SqlFileName
-        {
-            get { return _sqlFileName; }
-            set { SetProperty(ref _sqlFileName, value); }
-        }
-
+        public string SqlFileName { get; set; } = "SQLTEST.db";
+        [ReadOnly(true)]
+        public string InitQuery { get; set; } = "SELECT * FROM 'Lot'";
 
         //DataGridView
         // IList : 編集〇追加削除× 
@@ -58,9 +48,15 @@ namespace PrismAutofacSQLite.Models
             set { SetProperty(ref _table, value); }
         }
 
-
-        public string A { get; set; }
-        public string InitQuery { get; set; } = "SELECT * FROM 'Lot'";
+        private int _row;
+        public int Row
+        {
+            get { return _row; }
+            set { SetProperty(ref _row, value, () => {
+                var i = ((System.Data.DataView)table).ToTable().Rows[_row];
+                Console.WriteLine(i);
+            }); }
+        }
 
         public void Init()
         {

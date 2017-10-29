@@ -19,10 +19,19 @@ namespace PrismAutofacSQLite.Views
         public MainWindow()
         {
             InitializeComponent();
+
+            dgvList.RowEnter += DgvList_RowEnter;
+
             Messenger.Instance.GetEvent<PubSubEvent<object>>().Subscribe(m =>
             {
                 dgvList.DataSource = m;
             });
+        }
+
+        private void DgvList_RowEnter(object sender, System.Windows.Forms.DataGridViewCellEventArgs e)
+        {
+            //Action(e.RowIndex);
+            ((dynamic)DataContext).row.Value = e.RowIndex;
         }
     }
 }

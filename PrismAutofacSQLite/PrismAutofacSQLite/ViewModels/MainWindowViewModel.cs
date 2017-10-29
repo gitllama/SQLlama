@@ -19,6 +19,8 @@ namespace PrismAutofacSQLite.ViewModels
         public ReactiveCommand<object> LoadedCommand { get; private set; }
         //public ReactiveProperty<object> table { get; private set; }
 
+        public ReactiveProperty<int> row { get; private set; }
+
         public MainWindowViewModel()
         {
             var model = App.modelcontainer.Resolve<Models.Model>();
@@ -31,6 +33,8 @@ namespace PrismAutofacSQLite.ViewModels
 
             LoadedCommand = new ReactiveCommand();
             LoadedCommand.Subscribe(_ => model.Init() );
+
+            row = model.ToReactivePropertyAsSynchronized(x => x.Row);
         }
     }
 }
